@@ -35,14 +35,12 @@ jobs:
       - name: Join to 2026 MAP and create final CSV
         run: python scraper/standardize_giti_prices.py
 
-      - name: Upload prices and checkpoints
+      - name: Upload final in-stock prices CSV
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: giti-priority-tuesday-${{ github.run_id }}
           path: |
-            priority_giti_raw_*.csv
             tire_prices_*.csv
-            priority_checkpoint.csv
           if-no-files-found: warn
           retention-days: 30
