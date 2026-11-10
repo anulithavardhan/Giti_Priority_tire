@@ -1,0 +1,48 @@
+name: Giti Priority Tire - Tuesday MAP Monitor
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every Tuesday at 10:00 UTC (5 AM EST / 6 AM EDT)
+    - cron: "0 10 * * 2"
+
+permissions:
+  contents: read
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Chromium
+        run: playwright install --with-deps chromium
+
+      - name: Run Priority Tire Giti scrape
+        run: python scraper/priority_giti_scraper.py
+
+      - name: Join to 2026 MAP and create final CSV
+        run: python scraper/standardize_giti_prices.py
+
+      - name: Upload prices and checkpoints
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: giti-priority-tuesday-${{ github.run_id }}
+          path: |
+            priority_giti_raw_*.csv
+            tire_prices_*.csv
+            priority_checkpoint.csv
+          if-no-files-found: warn
+          retention-days: 30
