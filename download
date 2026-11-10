@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+priority_checkpoint.csv
+priority_giti_raw_*.csv
+tire_prices_*.csv
+.env
